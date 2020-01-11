@@ -1,0 +1,3 @@
+# HB-UNI-Sen-TEMP-MAX6675
+
+code is untested. i'm currently waiting for delivery of some max6675 from aliexpress...
