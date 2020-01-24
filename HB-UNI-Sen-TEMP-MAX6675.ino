@@ -17,24 +17,23 @@
 #include "Max6675.h"
 
 #define LED_PIN           4
+#define CONFIG_BUTTON_PIN 8
+
 #define MAX6675_SO        6
 #define MAX6675_SCK       7
 #define MAX6675_CS        9
 
-// Arduino Pro mini 8 Mhz
-// Arduino pin for the config button
-#define CONFIG_BUTTON_PIN 8
+#define BATT_EN_PIN       5
+#define BATT_MEAS_PIN     A1
 
 // number of available peers per channel
 #define PEERS_PER_CHANNEL 6
 
-#define BATT_EN_PIN       5
-#define BATT_MEAS_PIN     A1
 
-#define MSG_INTERVAL      20
+#define MSG_INTERVAL      180
 #define SYSCLOCK_FACTOR   0.88
 
-#define BATLOW            25 // LowBat Message at 2.5V
+#define BATLOW            21 // LowBat Message at 2.5V
 
 
 // all library classes are placed in the namespace 'as'
@@ -87,7 +86,6 @@ class WeatherChannel : public Channel<Hal, List1, EmptyList, List4, PEERS_PER_CH
       clock.add(*this);
       sensOK = max6675.measure();
 
-
       msg.init(device().nextcount(), max6675.temperature(), false);
 
       device().broadcastEvent(msg);
@@ -103,9 +101,7 @@ class WeatherChannel : public Channel<Hal, List1, EmptyList, List4, PEERS_PER_CH
     void setup(Device<Hal, List0>* dev, uint8_t number, uint16_t addr) {
       Channel::setup(dev, number, addr);
       sysclock.add(*this);
-
       sensOK = max6675.init();
-
     }
 
     uint8_t status () const { return 0; }
