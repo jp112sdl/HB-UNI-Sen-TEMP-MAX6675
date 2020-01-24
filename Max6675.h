@@ -6,40 +6,62 @@
 #ifndef MAX6675_H_
 #define MAX6675_H_
 
-#include <SPI.h>
+//#include <SPI.h>
 #include <Sensors.h>
 
 namespace as {
 
-template <uint8_t CS>
+template <uint8_t SCK, uint8_t CS, uint8_t SO>
 class MAX6675 : public Temperature {
 private:
+  byte spiread(void) {
+    int i;
+    byte d = 0;
+
+    for (i=7; i>=0; i--) {
+      digitalWrite(SCK, LOW);
+      _delay_ms(1);
+      if (digitalRead(SO)) {
+        d |= (1 << i);
+      }
+
+      digitalWrite(SCK, HIGH);
+      _delay_ms(1);
+    }
+    return d;
+  }
 
   uint16_t readCelsius() {
-    SPI.beginTransaction(SPISettings(SPI_CLOCK_DIV4,MSBFIRST,SPI_MODE1));
-    digitalWrite(CS,LOW);
-    delayMicroseconds(1);
-    uint8_t hByte = SPI.transfer(0);
-    uint8_t lByte = SPI.transfer(0);
-    SPI.endTransaction();
-    digitalWrite(CS,HIGH);
+    uint16_t v;
 
-    if (lByte & (1<<2)) {
+    digitalWrite(CS, HIGH);
+    _delay_ms(750);
+    digitalWrite(CS, LOW);
+    _delay_ms(1);
+
+    v = spiread();
+    v <<= 8;
+    v |= spiread();
+
+    if (v & 0x4) {
       DPRINTLN(F("thermocouple is unconnected"));
       return 0xFFFF;
     }
 
-    uint16_t ivalue = ( hByte << 5 | lByte >> 3 );
+    v >>= 3;
+    //DPRINT("C ");DDECLN(v*0.25);
 
-    return ivalue * 0.25;
+    return v*0.25;
   }
 
 public:
   MAX6675 () {}
 
     bool init () {
-      pinMode(CS,OUTPUT);
-      SPI.begin();
+      pinMode(SO,  INPUT);
+      pinMode(CS,  OUTPUT);
+      pinMode(SCK, OUTPUT);
+
       _present = (readCelsius() != 0xFFFF);
       return _present;
     }

@@ -17,7 +17,9 @@
 #include "Max6675.h"
 
 #define LED_PIN           4
-#define MAX6675_CS        7 //CS PIN of MAX6675
+#define MAX6675_SO        6
+#define MAX6675_SCK       7
+#define MAX6675_CS        9
 
 // Arduino Pro mini 8 Mhz
 // Arduino pin for the config button
@@ -26,9 +28,10 @@
 // number of available peers per channel
 #define PEERS_PER_CHANNEL 6
 
-#define SENSOR_EN_PIN     6
+#define BATT_EN_PIN       5
+#define BATT_MEAS_PIN     A1
 
-#define MSG_INTERVAL      180
+#define MSG_INTERVAL      20
 #define SYSCLOCK_FACTOR   0.88
 
 #define BATLOW            25 // LowBat Message at 2.5V
@@ -53,7 +56,7 @@ const struct DeviceInfo PROGMEM devinfo = {
 typedef LibSPI<10> SPIType;
 typedef Radio<SPIType, 2> RadioType;
 typedef StatusLed<LED_PIN> LedType;
-typedef AskSin<LedType, BatterySensor, RadioType> Hal;
+typedef AskSin<LedType, BatterySensorUni<BATT_MEAS_PIN, BATT_EN_PIN>, RadioType> Hal;
 Hal hal;
 
 class WeatherEventMsg : public Message {
@@ -73,7 +76,7 @@ class WeatherChannel : public Channel<Hal, List1, EmptyList, List4, PEERS_PER_CH
     WeatherEventMsg     msg;
     bool                sensOK;
     uint16_t            millis;
-    MAX6675<MAX6675_CS> max6675;
+    MAX6675<MAX6675_SCK, MAX6675_CS, MAX6675_SO> max6675;
     uint8_t             last_flags;
   public:
     WeatherChannel () : Channel(), Alarm(5), sensOK(true), millis(0), last_flags(0) {}
@@ -82,8 +85,8 @@ class WeatherChannel : public Channel<Hal, List1, EmptyList, List4, PEERS_PER_CH
     virtual void trigger (__attribute__ ((unused)) AlarmClock& clock) {
       tick = seconds2ticks(MSG_INTERVAL * SYSCLOCK_FACTOR);
       clock.add(*this);
-
       sensOK = max6675.measure();
+
 
       msg.init(device().nextcount(), max6675.temperature(), false);
 
@@ -100,7 +103,9 @@ class WeatherChannel : public Channel<Hal, List1, EmptyList, List4, PEERS_PER_CH
     void setup(Device<Hal, List0>* dev, uint8_t number, uint16_t addr) {
       Channel::setup(dev, number, addr);
       sysclock.add(*this);
+
       sensOK = max6675.init();
+
     }
 
     uint8_t status () const { return 0; }
