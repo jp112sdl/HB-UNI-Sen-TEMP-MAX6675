@@ -14,7 +14,7 @@
 
 #include <Register.h>
 #include <MultiChannelDevice.h>
-#include "Max6675.h"
+#include <sensors/Max6675.h>
 
 
 #define LED_PIN           4
