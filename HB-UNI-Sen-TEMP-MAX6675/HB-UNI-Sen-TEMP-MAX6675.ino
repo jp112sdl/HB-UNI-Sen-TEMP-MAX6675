@@ -131,5 +131,3 @@ void loop() {
     hal.sleep<>();
   }
 }
-
-

@@ -6,7 +6,6 @@
 #ifndef MAX6675_H_
 #define MAX6675_H_
 
-//#include <SPI.h>
 #include <Sensors.h>
 
 namespace as {
