@@ -122,7 +122,7 @@ class WeatherChannel : public Channel<Hal, List1, EmptyList, List4, PEERS_PER_CH
     }
 };
 
-class UType : public MultiChannelDevice<Hal, WeatherChannel, 5, UList0> {
+class UType : public MultiChannelDevice<Hal, WeatherChannel, 4, UList0> {
 
     class SensorArray : public Alarm {
         UType& dev;
@@ -162,10 +162,11 @@ class UType : public MultiChannelDevice<Hal, WeatherChannel, 5, UList0> {
           if (sens_1_OK == false) flgs |= 0x01 << 1;
           if (sens_2_OK == false) flgs |= 0x02 << 1;
 
+          dev.channel(1).flags(flgs);
+
           if (flgs != last_flgs) {
             last_flgs = flgs;
             _delay_ms(400);
-            dev.channel(1).flags(flgs);
             dev.channel(1).changed(true);
           }
         }
@@ -178,7 +179,7 @@ class UType : public MultiChannelDevice<Hal, WeatherChannel, 5, UList0> {
     } sensarray;
 
   public:
-    typedef MultiChannelDevice<Hal, WeatherChannel, 5, UList0> TSDevice;
+    typedef MultiChannelDevice<Hal, WeatherChannel, 4, UList0> TSDevice;
     UType(const DeviceInfo& info, uint16_t addr) : TSDevice(info, addr), sensarray(*this) {}
     virtual ~UType () {}
 
