@@ -84,13 +84,14 @@ class UList0 : public RegList0<Reg0> {
 
 class MeasureEventMsg : public Message {
   public:
-    void init(uint8_t msgcnt, int tempValues[4], bool batlow) {
-      Message::init(0x1a, msgcnt, 0x53, (msgcnt % 20 == 1) ? (BIDI | WKMEUP) : BCAST, batlow ? 0x80 : 0x00, 0x41);
-      for (int i = 0; i < 4; i++) {
+    void init(uint8_t msgcnt, int tempValues[4], bool batlow, uint8_t batval) {
+      Message::init(0x18, msgcnt, 0x53, (msgcnt % 20 == 1) ? (BIDI | WKMEUP) : BCAST, batlow ? 0x80 : 0x00, 0x41);
+      for (uint8_t i = 0; i < 4; i++) {
         pload[i * 3] = (tempValues[i] >> 8) & 0xff;
         pload[(i * 3) + 1] = (tempValues[i]) & 0xff;
         pload[(i * 3) + 2] = 0x42 + i;
       }
+      pload[12] = batval & 0xff;
     }
 };
 
@@ -150,7 +151,7 @@ class UType : public MultiChannelDevice<Hal, WeatherChannel, 4, UList0> {
 
           MeasureEventMsg& msg = (MeasureEventMsg&)dev.message();
 
-          msg.init(dev.nextcount(), tempValues, dev.battery().low());
+          msg.init(dev.nextcount(), tempValues, dev.battery().low(), dev.battery().current());
           dev.send(msg, dev.getMasterID());
 
           uint8_t flgs = dev.battery().low() ? 0x80 : 0x00;
