@@ -78,7 +78,7 @@ class WeatherChannel : public Channel<Hal, List1, EmptyList, List4, PEERS_PER_CH
     MAX6675<MAX6675_SCK, MAX6675_CS, MAX6675_SO> max6675;
     uint8_t             last_flags;
   public:
-    WeatherChannel () : Channel(), Alarm(5), sensOK(true), millis(0), last_flags(0) {}
+    WeatherChannel () : Channel(), Alarm(5), sensOK(true), millis(0), last_flags(0xFF) {}
     virtual ~WeatherChannel () {}
 
     virtual void trigger (__attribute__ ((unused)) AlarmClock& clock) {
