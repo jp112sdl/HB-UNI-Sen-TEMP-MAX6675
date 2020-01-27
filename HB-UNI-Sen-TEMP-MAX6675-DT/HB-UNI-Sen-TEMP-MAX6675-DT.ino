@@ -38,8 +38,6 @@
 // all library classes are placed in the namespace 'as'
 using namespace as;
 
-enum tParams {INACTIVE, T1, T2, T1sT2, T2sT1};
-
 // define all device properties
 const struct DeviceInfo PROGMEM devinfo = {
   {0xf3, 0x10, 0x01},     // Device ID
@@ -66,7 +64,7 @@ public:
 } hal;
 
 
-DEFREGISTER(Reg0, MASTERID_REGS, DREG_TPARAMS, DREG_LOCALRESETDISABLE, DREG_LOWBATLIMIT, 0x20, 0x21)
+DEFREGISTER(Reg0, MASTERID_REGS, DREG_LOWBATLIMIT, 0x20, 0x21)
 class UList0 : public RegList0<Reg0> {
   public:
     UList0(uint16_t addr) : RegList0<Reg0>(addr) {}
@@ -79,8 +77,6 @@ class UList0 : public RegList0<Reg0> {
 
     void defaults () {
       clear();
-      localResetDisable(false);
-      tParamSelect(3);
       updIntervall(180);
       lowBatLimit(22);
     }
