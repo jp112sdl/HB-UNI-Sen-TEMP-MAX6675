@@ -86,7 +86,7 @@ class WeatherChannel : public Channel<Hal, List1, EmptyList, List4, PEERS_PER_CH
       clock.add(*this);
       sensOK = max6675.measure();
 
-      msg.init(device().nextcount(), max6675.temperature(), false);
+      msg.init(device().nextcount(), sensOK ? max6675.temperature() : -10, false);
 
       device().broadcastEvent(msg);
 
